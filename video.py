@@ -2,6 +2,8 @@ import threading
 import queue
 import time
 
+q = queue.Queue(maxsize=5)
+
 def get_feed(q, i):
     while True:
         foo = q.get()
@@ -10,17 +12,16 @@ def get_feed(q, i):
         print(i)
         q.task_done()
 
-q = queue.Queue()
-num_threads = 10
+def queue_module(index):
+    q.put(index)
+    worker = threading.Thread(target=get_feed, args=(q,index))
+    index += 1
+    worker.setDaemon(True)
+    worker.start()
 
-for x in range(50):
-  q.put(x)
-
-for i in range(num_threads):
-  worker = threading.Thread(target=get_feed, args=(q,i))
-  worker.setDaemon(True)
-  worker.start()
+queue_module(1)
+queue_module(2)
+queue_module(3)
 
 q.join()
-
 print("Done!")

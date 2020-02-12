@@ -1,21 +1,26 @@
 import threading
+import queue
 import time
 
-def get_feed():
-    # Function to get twitter feed from api
-    time.sleep(1)
-    print(".", end="")
-    return
+def get_feed(q, i):
+    while True:
+        foo = q.get()
+        time.sleep(0.5)
+        print(foo, end=", from thread ")
+        print(i)
+        q.task_done()
 
-if __name__ == "__main__":
-    # Create threads
-    feed1 = threading.Thread(target=get_feed)
-    feed2 = threading.Thread(target=get_feed)
+q = queue.Queue()
+num_threads = 10
 
-    feed1.start()
-    feed2.start()
+for x in range(50):
+  q.put(x)
 
-    feed1.join()
-    feed2.join()
+for i in range(num_threads):
+  worker = threading.Thread(target=get_feed, args=(q,i))
+  worker.setDaemon(True)
+  worker.start()
 
-    print("\nDone!")
+q.join()
+
+print("Done!")

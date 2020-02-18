@@ -42,11 +42,14 @@ auth.set_access_token(access_token, access_token_secret)
 # Creation of the actual interface, using authentication
 api = tw.API(auth)
 
-date = datetime.date.today() - datetime.timedelta(days=1)
+allTweets = api.user_timeline(screen_name='@NatGeo',
+                      tweet_mode="extended", count=100)
 
-for status in tw.Cursor(api.user_timeline, screen_name='@NatGeo', tweet_mode="extended", since=date, until=date).items(50):
-    print(status.full_text)
-    print("\n\n")
+for tweet in allTweets:
+    if (datetime.datetime.now() - tweet.created_at).days < 1:
+        print(tweet.full_text)
+        print("\n\n")
+
 
 q.join()
 print("Done!")

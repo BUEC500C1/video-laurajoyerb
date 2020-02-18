@@ -34,25 +34,17 @@ def queue_module(index):
 
 
 # Main
+# OAuth process, using the keys and tokens
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
-api = tw.API(auth, wait_on_rate_limit=True)
 
-# Define the search term and the date_since date as variables
-search_words = "from:elonmusk"
-date_since = "2018-11-16"
+# Creation of the actual interface, using authentication
+api = tw.API(auth)
 
-# Collect tweets
-tweets = tw.Cursor(api.search,
-                   q=search_words,
-                   lang="en",
-                   since=date_since).items(5)
+date_since = "2020-02-10"
 
-for val in range(20):
-    queue_module(val)
-
-all_tweets = [tweet.text for tweet in tweets]
-print(all_tweets[:5])
+for status in tw.Cursor(api.user_timeline, screen_name='@NatGeo', tweet_mode="extended", since=date_since).items(50):
+    print(status.full_text)
 
 q.join()
 print("Done!")

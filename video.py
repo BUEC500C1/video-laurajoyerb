@@ -39,7 +39,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
 # Define the search term and the date_since date as variables
-search_words = "#wildfires"
+search_words = "from:elonmusk"
 date_since = "2018-11-16"
 
 # Collect tweets

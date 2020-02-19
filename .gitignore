@@ -1,3 +1,4 @@
 
 config.py
 *.png
+.DS_Store

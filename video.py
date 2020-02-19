@@ -81,6 +81,10 @@ def get_tweets(user_name):
         d.text((10, 10), wrapped_text.encode(
             'cp1252', 'ignore'), fill=(0, 0, 0))
 
+        if 'media' in tweet.entities:
+            print("has an image!\n")
+            
+
         image_name = "tweet" + str(index) + ".png"
         img.save(image_name)
         index += 1

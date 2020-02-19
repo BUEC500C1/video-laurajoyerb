@@ -59,16 +59,20 @@ api = tw.API(auth)
 allTweets = api.user_timeline(screen_name='@NatGeo',
                       tweet_mode="extended", count=100)
 
+index = 0
 for tweet in allTweets:
     if (datetime.datetime.now() - tweet.created_at).days < 1:
         print(tweet.full_text)
         print("\n")
         wrapped_text, new_lines = format_tweet_text(tweet.full_text)
-        img = Image.new('RGB', (200, 20*new_lines), (255, 255, 255))
+        img_height = 20*new_lines if new_lines > 4 else 20*new_lines + 5
+        img = Image.new('RGB', (200, img_height), (255, 255, 255))
         d = ImageDraw.Draw(img)
         d.text((10, 10), wrapped_text.encode(
             'cp1252', 'ignore'), fill=(0, 0, 0))
-        img.save("image.png")
+        image_name = "image" + str(index) + ".png"
+        img.save(image_name)
+        index += 1
 
 q.join()
 print("Done!")

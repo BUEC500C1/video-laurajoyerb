@@ -2,10 +2,14 @@ import threading
 import queue
 import time
 import datetime
+import math
 
 import os
 import tweepy as tw
 import pandas as pd
+
+from PIL import Image
+from PIL import ImageDraw
 
 from config import consumer_key
 from config import consumer_secret
@@ -33,6 +37,16 @@ def queue_module(index):
     worker.setDaemon(True)
     worker.start()
 
+def format_tweet_text(text):
+    # if full text is longer than 25 characters, add a new line so it wraps
+    if len(text) > 25:
+        i = 0
+        res = '\n'.join(text[i:i + 25] for i in range(0, len(text), 25))
+        new_lines = math.floor(len(text) / 25)
+        return res, new_lines
+    else:
+        return text, 1
+
 
 # Main
 # OAuth process, using the keys and tokens
@@ -48,8 +62,13 @@ allTweets = api.user_timeline(screen_name='@NatGeo',
 for tweet in allTweets:
     if (datetime.datetime.now() - tweet.created_at).days < 1:
         print(tweet.full_text)
-        print("\n\n")
-
+        print("\n")
+        wrapped_text, new_lines = format_tweet_text(tweet.full_text)
+        img = Image.new('RGB', (200, 20*new_lines), (255, 255, 255))
+        d = ImageDraw.Draw(img)
+        d.text((10, 10), wrapped_text.encode(
+            'cp1252', 'ignore'), fill=(0, 0, 0))
+        img.save("image.png")
 
 q.join()
 print("Done!")

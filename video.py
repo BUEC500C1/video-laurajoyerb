@@ -3,6 +3,7 @@ import queue
 import time
 import datetime
 import math
+import requests
 
 import os
 import tweepy as tw
@@ -10,6 +11,7 @@ import pandas as pd
 
 from PIL import Image
 from PIL import ImageDraw
+from io import BytesIO
 
 from config import consumer_key
 from config import consumer_secret
@@ -72,21 +74,32 @@ def get_tweets(user_name):
 
     index = 0
     for tweet in day_tweets:
+        # wraps text to fit image
         wrapped_text, new_lines = format_tweet_text(tweet.full_text)
 
-        img_height = 20 * new_lines if new_lines > 4 else 20 * new_lines + 5
-        img = Image.new('RGB', (200, img_height), (255, 255, 255))
+        has_image = True if ('media' in tweet.entities) else False
 
-        d = ImageDraw.Draw(img)
+        # determines appropriate sizing for text part of image
+        img_height = 21 * new_lines if new_lines > 4 else 21 * new_lines + 5
+        total_height = (img_height + 200) if has_image else img_height
+        text_img = Image.new('RGB', (200, total_height), (255, 255, 255))
+
+        # creates the text image
+        d = ImageDraw.Draw(text_img)
         d.text((10, 10), wrapped_text.encode(
             'cp1252', 'ignore'), fill=(0, 0, 0))
 
-        if 'media' in tweet.entities:
-            print("has an image!\n")
-            
+        # gets, resizes, and pastes the tweet image if it is present
+        if has_image:
+            response = requests.get("https://pbs.twimg.com/media/ERFNdgDXsAEVnh_.jpg")
+            media_img = Image.open(BytesIO(response.content))
+            media_img.thumbnail((180, 180), Image.ANTIALIAS)
+            text_img.paste(media_img, (10, img_height + 15))
+            print(index)
 
+        # saves the image for later compilation
         image_name = "tweet" + str(index) + ".png"
-        img.save(image_name)
+        text_img.save(image_name)
         index += 1
 
 

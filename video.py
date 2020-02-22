@@ -59,7 +59,21 @@ def add_media(tweet, image, img_height):
     media_img.thumbnail((180, 180), Image.ANTIALIAS)
     image.paste(media_img, (10, img_height + 15))
 
+def no_tweets_error():
+    error_image = Image.new('RGB', (203, 350), (255, 255, 255))
+    d = ImageDraw.Draw(error_image)
+    d.text((15, 10), "This user has no tweets", fill=(0, 0, 0))
+
+    error_image.thumbnail((300, 300), Image.ANTIALIAS)
+
+    # saves the image
+    image_name = "tweet0.png"
+    error_image.save(image_name)
+
 def get_tweet_images(tweets):
+    if len(tweets) == 0:
+        no_tweets_error()
+        
     index = 0
     for tweet in tweets:
         # wraps text to fit image

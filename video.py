@@ -111,6 +111,10 @@ def get_tweets(user_name):
     os.system(
         "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p twitter_video.mp4")
 
+def clean_all():
+    for file in os.listdir('.'):
+        if file.endswith('.png') or file.endswith('.mp4'):
+            os.remove(file)
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -122,6 +126,7 @@ def home():
 
 @app.route('/tweets/', methods=['GET'])
 def twitter_username():
+    clean_all()
     if 'username' in request.args:
         name = request.args['username']
         get_tweets(name)

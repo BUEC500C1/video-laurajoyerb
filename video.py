@@ -10,6 +10,8 @@ import os
 import tweepy as tw
 import pandas as pd
 
+from flask import request
+
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
@@ -117,6 +119,16 @@ app.config["DEBUG"] = True
 @app.route('/', methods=['GET'])
 def home():
     return "<h1>Twitter Video Project</h1><p>by Laura Joy Erb</p><p>for EC500: Building Software</p>"
+
+@app.route('/tweets/', methods=['GET'])
+def twitter_username():
+    if 'username' in request.args:
+        name = request.args['username']
+        get_tweets(name)
+    else:
+        get_tweets('@NatGeo')
+        name = "National Geographic"
+    return "<h1>" + name + "</h1>"
 
 
 app.run()

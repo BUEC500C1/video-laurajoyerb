@@ -59,7 +59,7 @@ def add_media(tweet, image, img_height):
     media_img.thumbnail((180, 180), Image.ANTIALIAS)
     image.paste(media_img, (10, img_height + 15))
 
-def no_tweets_error():
+def no_tweets_error(user_name):
     error_image = Image.new('RGB', (203, 350), (255, 255, 255))
     d = ImageDraw.Draw(error_image)
     d.text((15, 10), "This user has no tweets", fill=(0, 0, 0))
@@ -67,12 +67,12 @@ def no_tweets_error():
     error_image.thumbnail((300, 300), Image.ANTIALIAS)
 
     # saves the image
-    image_name = "tweet0.png"
+    image_name = user_name + "_tweet0.png"
     error_image.save(image_name)
 
-def get_tweet_images(tweets):
+def get_tweet_images(tweets, user_name):
     if len(tweets) == 0:
-        no_tweets_error()
+        no_tweets_error(user_name)
 
     index = 0
     for tweet in tweets:
@@ -97,7 +97,7 @@ def get_tweet_images(tweets):
         text_img.thumbnail((300, 300), Image.ANTIALIAS)
 
         # saves the image for later compilation
-        image_name = "tweet" + str(index) + ".png"
+        image_name = user_name + "_tweet" + str(index) + ".png"
         text_img.save(image_name)
         index += 1
 
@@ -114,16 +114,16 @@ def get_tweets(user_name):
         allTweets = api.user_timeline(screen_name=user_name,
                                       tweet_mode="extended", count=100)
     except:
-        no_tweets_error()
+        no_tweets_error(user_name)
     else:
         day_tweets = dated_tweets(allTweets)
 
         # creates all images and stores them as png files in the directory
-        get_tweet_images(day_tweets)
+        get_tweet_images(day_tweets, user_name)
 
     # creates video using ffmpeg
     os.system(
-        "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p twitter_video.mp4")
+        "ffmpeg -r 1 -f image2 -s 174x300 -i " + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + user_name + "_twitter_video.mp4")
 
 # removes all previous tweets, images, and videos
 def clean_all():
@@ -147,8 +147,9 @@ def twitter_username():
         get_tweets(name)
     else:
         get_tweets('@NatGeo')
+        name = 'NatGeo'
 
-    return send_file("twitter_video.mp4")
+    return send_file(name + "_twitter_video.mp4")
 
 app.run()
 

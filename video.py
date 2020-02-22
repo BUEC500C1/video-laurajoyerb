@@ -10,7 +10,7 @@ import os
 import tweepy as tw
 import pandas as pd
 
-from flask import request
+from flask import request, send_file
 
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
@@ -128,8 +128,8 @@ def twitter_username():
     else:
         get_tweets('@NatGeo')
         name = "National Geographic"
-    return "<h1>" + name + "</h1>"
 
+    return send_file("twitter_video.mp4")
 
 app.run()
 

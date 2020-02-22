@@ -86,12 +86,13 @@ def get_tweets(user_name):
 
         # creates the text image
         d = ImageDraw.Draw(text_img)
-        d.text((10, 10), wrapped_text.encode(
+        d.text((15, 10), wrapped_text.encode(
             'cp1252', 'ignore'), fill=(0, 0, 0))
 
         # gets, resizes, and pastes the tweet image if it is present
         if has_image:
-            response = requests.get("https://pbs.twimg.com/media/ERFNdgDXsAEVnh_.jpg")
+            img_url = tweet.entities['media'][0]['media_url_https']
+            response = requests.get(img_url)
             media_img = Image.open(BytesIO(response.content))
             media_img.thumbnail((180, 180), Image.ANTIALIAS)
             text_img.paste(media_img, (10, img_height + 15))

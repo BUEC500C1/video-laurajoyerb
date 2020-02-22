@@ -73,7 +73,7 @@ def no_tweets_error():
 def get_tweet_images(tweets):
     if len(tweets) == 0:
         no_tweets_error()
-        
+
     index = 0
     for tweet in tweets:
         # wraps text to fit image
@@ -110,13 +110,16 @@ def get_tweets(user_name):
     # Creation of the actual interface, using authentication
     api = tw.API(auth)
 
-    allTweets = api.user_timeline(screen_name=user_name,
-                                tweet_mode="extended", count=100)
+    try:
+        allTweets = api.user_timeline(screen_name=user_name,
+                                      tweet_mode="extended", count=100)
+    except:
+        no_tweets_error()
+    else:
+        day_tweets = dated_tweets(allTweets)
 
-    day_tweets = dated_tweets(allTweets)
-
-    # creates all images and stores them as png files in the directory
-    get_tweet_images(day_tweets)
+        # creates all images and stores them as png files in the directory
+        get_tweet_images(day_tweets)
 
     # creates video using ffmpeg
     os.system(

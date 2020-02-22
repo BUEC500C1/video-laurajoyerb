@@ -101,6 +101,9 @@ def get_tweets(user_name):
         text_img.save(image_name)
         index += 1
 
+    os.system(
+        "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p video.mp4")
+
 
 # Main
 get_tweets('@NatGeo')

@@ -55,22 +55,9 @@ def dated_tweets(tweets):
 
     return dated
 
-def get_tweets(user_name):
-
-    # OAuth process, using the keys and tokens
-    auth = tw.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-
-    # Creation of the actual interface, using authentication
-    api = tw.API(auth)
-
-    allTweets = api.user_timeline(screen_name=user_name,
-                                tweet_mode="extended", count=100)
-
-    day_tweets = dated_tweets(allTweets)
-
+def get_tweet_images(tweets):
     index = 0
-    for tweet in day_tweets:
+    for tweet in tweets:
         # wraps text to fit image
         wrapped_text, new_lines = format_tweet_text(tweet.full_text)
 
@@ -101,8 +88,25 @@ def get_tweets(user_name):
         text_img.save(image_name)
         index += 1
 
+def get_tweets(user_name):
+
+    # OAuth process, using the keys and tokens
+    auth = tw.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    # Creation of the actual interface, using authentication
+    api = tw.API(auth)
+
+    allTweets = api.user_timeline(screen_name=user_name,
+                                tweet_mode="extended", count=100)
+
+    day_tweets = dated_tweets(allTweets)
+
+    get_tweet_images(day_tweets)
+
+    # creates video using ffmpeg
     os.system(
-        "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p video.mp4")
+        "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p twitter_video.mp4")
 
 
 # Main

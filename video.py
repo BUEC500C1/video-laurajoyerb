@@ -9,14 +9,11 @@ import os
 import tweepy as tw
 import pandas as pd
 
-from PIL import Image
-from PIL import ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
-from config import consumer_key
-from config import consumer_secret
-from config import access_token
-from config import access_token_secret
+from config import consumer_key, consumer_secret
+from config import access_token, access_token_secret
 
 q = queue.Queue(maxsize=5)
 
@@ -81,8 +78,7 @@ def get_tweets(user_name):
 
         # determines appropriate sizing for text part of image
         img_height = 21 * new_lines if new_lines > 4 else 21 * new_lines + 5
-        total_height = (img_height + 200) if has_image else img_height
-        text_img = Image.new('RGB', (200, total_height), (255, 255, 255))
+        text_img = Image.new('RGB', (203, 350), (255, 255, 255))
 
         # creates the text image
         d = ImageDraw.Draw(text_img)
@@ -97,6 +93,8 @@ def get_tweets(user_name):
             media_img.thumbnail((180, 180), Image.ANTIALIAS)
             text_img.paste(media_img, (10, img_height + 15))
             print(index)
+
+        text_img.thumbnail((300, 300), Image.ANTIALIAS)
 
         # saves the image for later compilation
         image_name = "tweet" + str(index) + ".png"

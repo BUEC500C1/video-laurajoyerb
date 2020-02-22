@@ -2,3 +2,5 @@
 config.py
 *.png
 .DS_Store
+ffmpeg-4.2.2/*
+*.mp4

@@ -1,7 +1,5 @@
-import threading
-import queue
-import time
-import datetime
+import threading, queue
+import time, datetime
 import math
 import requests
 import flask
@@ -18,23 +16,18 @@ from io import BytesIO
 from config import consumer_key, consumer_secret
 from config import access_token, access_token_secret
 
-q = queue.Queue(maxsize=5)
+# global queue for calling processes
+q = queue.Queue(maxsize=50)
 
-def callback():
-    print("A thread has finished")
-
-def get_feed(q, i, callback):
+def get_feed(q, i):
     while True:
         foo = q.get()
         time.sleep(0.5)
-        # print(foo, end=", from thread ")
-        # print(i)
         q.task_done()
-        callback()
 
 def queue_module(index):
     q.put(index)
-    worker = threading.Thread(target=get_feed, args=(q, index, callback))
+    worker = threading.Thread(target=get_feed, args=(q, index))
     index += 1
     worker.setDaemon(True)
     worker.start()
@@ -58,6 +51,14 @@ def dated_tweets(tweets):
 
     return dated
 
+# pastes tweet media onto tweet image
+def add_media(tweet, image, img_height):
+    img_url = tweet.entities['media'][0]['media_url_https']
+    response = requests.get(img_url)
+    media_img = Image.open(BytesIO(response.content))
+    media_img.thumbnail((180, 180), Image.ANTIALIAS)
+    image.paste(media_img, (10, img_height + 15))
+
 def get_tweet_images(tweets):
     index = 0
     for tweet in tweets:
@@ -77,12 +78,7 @@ def get_tweet_images(tweets):
 
         # gets, resizes, and pastes the tweet image if it is present
         if has_image:
-            img_url = tweet.entities['media'][0]['media_url_https']
-            response = requests.get(img_url)
-            media_img = Image.open(BytesIO(response.content))
-            media_img.thumbnail((180, 180), Image.ANTIALIAS)
-            text_img.paste(media_img, (10, img_height + 15))
-            print(index)
+            add_media(tweet, text_img, img_height)
 
         text_img.thumbnail((300, 300), Image.ANTIALIAS)
 
@@ -105,12 +101,14 @@ def get_tweets(user_name):
 
     day_tweets = dated_tweets(allTweets)
 
+    # creates all images and stores them as png files in the directory
     get_tweet_images(day_tweets)
 
     # creates video using ffmpeg
     os.system(
         "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p twitter_video.mp4")
 
+# removes all previous tweets, images, and videos
 def clean_all():
     for file in os.listdir('.'):
         if file.endswith('.png') or file.endswith('.mp4'):
@@ -132,7 +130,6 @@ def twitter_username():
         get_tweets(name)
     else:
         get_tweets('@NatGeo')
-        name = "National Geographic"
 
     return send_file("twitter_video.mp4")
 

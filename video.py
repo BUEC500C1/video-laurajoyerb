@@ -4,6 +4,7 @@ import time
 import datetime
 import math
 import requests
+import flask
 
 import os
 import tweepy as tw
@@ -109,8 +110,19 @@ def get_tweets(user_name):
         "ffmpeg -r 1 -f image2 -s 174x300 -i tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p twitter_video.mp4")
 
 
-# Main
-get_tweets('@NatGeo')
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
 
-q.join()
-print("Done!")
+
+@app.route('/', methods=['GET'])
+def home():
+    return "<h1>Twitter Video Project</h1><p>by Laura Joy Erb</p><p>for EC500: Building Software</p>"
+
+
+app.run()
+
+# # Main
+# get_tweets('@NatGeo')
+
+# q.join()
+# print("Done!")

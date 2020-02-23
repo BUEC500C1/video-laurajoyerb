@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Requests</title>
+</head>
+<body>
+    <h1>Requests: </h1>
+    <table cellpadding="8">
+        <tr>
+            <th> Request ID </th>
+            <th> User Name </th>
+            <th> Status </th>
+        </tr>
+        {% for key, value in calls.items() %}
+        <tr>
+            <th> {{ key }} </th>
+            <td> {{ value.user_name }} </td>
+            <td> {{ value.status }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

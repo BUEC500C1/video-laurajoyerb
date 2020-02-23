@@ -16,14 +16,11 @@ from io import BytesIO
 from config import consumer_key, consumer_secret
 from config import access_token, access_token_secret
 
-# unique identifier for each process
-id = 0
 
-# global queue for calling processes
-q = queue.Queue(maxsize=50)
-
-# global dict for tracking completion status of requests
-processes = {}
+id = 0  # unique identifier for each process
+q = queue.Queue(maxsize=50)  # global queue for calling processes
+processes = {}  # global dict for tracking completion status of requests
+max_threads = 4 # number of worker threads to be created (based on # of cores available)
 
 def send_completed_video(ident):
     # waits for video to be completed
@@ -200,9 +197,15 @@ if __name__ == '__main__':
     q.join()
 
     # creates and starts threads
-    worker = threading.Thread(target=get_tweets)
-    worker.setDaemon(True)
-    worker.start()
+    threads = []
+
+    for i in range(max_threads):
+        worker = threading.Thread(target=get_tweets)
+        worker.setDaemon(True)
+        threads.append(worker)
+    
+    for t in threads:
+        t.start()
 
     # begins app
     app.run()

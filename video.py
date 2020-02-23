@@ -128,7 +128,7 @@ def get_tweets():
 
         # creates video using ffmpeg
         os.system(
-            "ffmpeg -r 1 -f image2 -s 174x300 -i " + str(ident) + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + str(ident) + user_name + "_twitter_video.mp4")
+            "ffmpeg -r 1/3 -f image2 -s 174x300 -i " + str(ident) + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + str(ident) + user_name + "_twitter_video.mp4")
 
         processes[str(ident)]["status"] = "completed"
         q.task_done()

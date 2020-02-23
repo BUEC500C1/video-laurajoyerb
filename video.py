@@ -16,8 +16,14 @@ from io import BytesIO
 from config import consumer_key, consumer_secret
 from config import access_token, access_token_secret
 
+# unique identifier for each process
+id = 0
+
 # global queue for calling processes
 q = queue.Queue(maxsize=50)
+
+# global dict for tracking completion status of requests
+processes = {}
 
 def get_feed(q, i):
     while True:
@@ -31,6 +37,14 @@ def queue_module(index):
     index += 1
     worker.setDaemon(True)
     worker.start()
+
+def send_completed_video(ident):
+    # waits for video to be completed
+    while processes[ident]["status"] != "completed":
+        pass
+    
+    # returns video file to original process request
+    return send_file(processes[ident]["user_name"] + "_twitter_video.mp4")
 
 def format_tweet_text(text):
     # if full text is longer than 25 characters, add a new line so it wraps
@@ -70,7 +84,7 @@ def no_tweets_error(user_name):
     image_name = user_name + "_tweet0.png"
     error_image.save(image_name)
 
-def get_tweet_images(tweets, user_name):
+def get_tweet_images(tweets, user_name, ident):
     if len(tweets) == 0:
         no_tweets_error(user_name)
 
@@ -97,11 +111,11 @@ def get_tweet_images(tweets, user_name):
         text_img.thumbnail((300, 300), Image.ANTIALIAS)
 
         # saves the image for later compilation
-        image_name = user_name + "_tweet" + str(index) + ".png"
+        image_name = str(ident) + user_name + "_tweet" + str(index) + ".png"
         text_img.save(image_name)
         index += 1
 
-def get_tweets(user_name):
+def get_tweets():
 
     # OAuth process, using the keys and tokens
     auth = tw.OAuthHandler(consumer_key, consumer_secret)
@@ -110,20 +124,30 @@ def get_tweets(user_name):
     # Creation of the actual interface, using authentication
     api = tw.API(auth)
 
-    try:
-        allTweets = api.user_timeline(screen_name=user_name,
-                                      tweet_mode="extended", count=100)
-    except:
-        no_tweets_error(user_name)
-    else:
-        day_tweets = dated_tweets(allTweets)
+    while True:
+        video_request = q.get()
+        ident = video_request["id"]
+        user_name = video_request["user_name"]
 
-        # creates all images and stores them as png files in the directory
-        get_tweet_images(day_tweets, user_name)
+        processes[str(ident)]["status"] = "processing"
 
-    # creates video using ffmpeg
-    os.system(
-        "ffmpeg -r 1 -f image2 -s 174x300 -i " + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + user_name + "_twitter_video.mp4")
+        try:
+            allTweets = api.user_timeline(screen_name=user_name,
+                                        tweet_mode="extended", count=100)
+        except:
+            no_tweets_error(user_name)
+        else:
+            day_tweets = dated_tweets(allTweets)
+
+            # creates all images and stores them as png files in the directory
+            get_tweet_images(day_tweets, user_name, ident)
+
+        # creates video using ffmpeg
+        os.system(
+            "ffmpeg -r 1 -f image2 -s 174x300 -i " + str(ident) + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + user_name + "_twitter_video.mp4")
+
+        processes[str(ident)]["status"] = "completed"
+        q.task_done()
 
 # removes all previous tweets, images, and videos
 def clean_all():
@@ -141,20 +165,44 @@ def home():
 
 @app.route('/tweets/', methods=['GET'])
 def twitter_username():
-    clean_all()
+    global id
+
+    # default user name if none provided
+    name = "NatGeo"
+
     if 'username' in request.args:
         name = request.args['username']
-        get_tweets(name)
-    else:
-        get_tweets('@NatGeo')
-        name = 'NatGeo'
+ 
+    call = {
+        "user_name": name,
+        "id": id,
+        "status": "queued"
+    }
+    ident = str(id)
+    id += 1
 
-    return send_file(name + "_twitter_video.mp4")
+    # adds to dict of all process requests
+    processes[ident] = call
 
-app.run()
+    # adds to worker queue to be completed
+    q.put(call)
 
-# # Main
-# get_tweets('@NatGeo')
+    q.join()
 
-# q.join()
-# print("Done!")
+    return send_completed_video(ident)
+
+
+if __name__ == '__main__':
+    # resets
+    id = 0
+    clean_all()
+
+    q.join()
+
+    # creates and starts threads
+    worker = threading.Thread(target=get_tweets)
+    worker.setDaemon(True)
+    worker.start()
+
+    # begins app
+    app.run()

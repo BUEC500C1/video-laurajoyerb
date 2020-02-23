@@ -13,8 +13,8 @@ from flask import request, send_file, render_template
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
-from config import consumer_key, consumer_secret
-from config import access_token, access_token_secret
+from keys import consumer_key, consumer_secret
+from keys import access_token, access_token_secret
 
 
 id = 0  # unique identifier for each process

@@ -25,19 +25,6 @@ q = queue.Queue(maxsize=50)
 # global dict for tracking completion status of requests
 processes = {}
 
-def get_feed(q, i):
-    while True:
-        foo = q.get()
-        time.sleep(0.5)
-        q.task_done()
-
-def queue_module(index):
-    q.put(index)
-    worker = threading.Thread(target=get_feed, args=(q, index))
-    index += 1
-    worker.setDaemon(True)
-    worker.start()
-
 def send_completed_video(ident):
     # waits for video to be completed
     while processes[ident]["status"] != "completed":
@@ -73,7 +60,7 @@ def add_media(tweet, image, img_height):
     media_img.thumbnail((180, 180), Image.ANTIALIAS)
     image.paste(media_img, (10, img_height + 15))
 
-def no_tweets_error(user_name):
+def no_tweets_error(user_name, ident):
     error_image = Image.new('RGB', (203, 350), (255, 255, 255))
     d = ImageDraw.Draw(error_image)
     d.text((15, 10), "This user has no tweets", fill=(0, 0, 0))
@@ -81,12 +68,12 @@ def no_tweets_error(user_name):
     error_image.thumbnail((300, 300), Image.ANTIALIAS)
 
     # saves the image
-    image_name = user_name + "_tweet0.png"
+    image_name = str(ident) + user_name + "_tweet0.png"
     error_image.save(image_name)
 
 def get_tweet_images(tweets, user_name, ident):
     if len(tweets) == 0:
-        no_tweets_error(user_name)
+        no_tweets_error(user_name, ident)
 
     index = 0
     for tweet in tweets:
@@ -135,7 +122,7 @@ def get_tweets():
             allTweets = api.user_timeline(screen_name=user_name,
                                         tweet_mode="extended", count=100)
         except:
-            no_tweets_error(user_name)
+            no_tweets_error(user_name, ident)
         else:
             day_tweets = dated_tweets(allTweets)
 
@@ -155,6 +142,14 @@ def clean_all():
         if file.endswith('.png') or file.endswith('.mp4'):
             os.remove(file)
 
+# cleans all old images out (videos stay)
+def clean_old():
+    for call in processes.values():
+        if call["status"] == "completed":
+            for file in os.listdir('.'):
+                if file.startswith(str(call["id"]) + call["user_name"]) & file.endswith('.png'):
+                    os.remove(file)
+
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
@@ -165,6 +160,10 @@ def home():
 
 @app.route('/tweets/', methods=['GET'])
 def twitter_username():
+    # used to periodically clean out unnecessary files
+    # cleaning will increase in frequency as calls become more frequent
+    clean_old()
+
     global id
 
     # default user name if none provided
@@ -176,7 +175,7 @@ def twitter_username():
     call = {
         "user_name": name,
         "id": id,
-        "status": "queued"
+        "status" : "queued"
     }
     ident = str(id)
     id += 1
@@ -196,6 +195,7 @@ if __name__ == '__main__':
     # resets
     id = 0
     clean_all()
+    processes.clear()
 
     q.join()
 

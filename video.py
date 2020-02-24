@@ -6,9 +6,8 @@ import flask
 
 import os
 import tweepy as tw
-import pandas as pd
 
-from flask import request, send_file, render_template
+from flask import send_file
 
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO

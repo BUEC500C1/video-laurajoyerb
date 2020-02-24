@@ -1,19 +1,9 @@
 import threading
 import queue
-import time
-import datetime
-import math
 import requests
 import flask
 
-import os
-import tweepy as tw
-import pandas as pd
-
-from flask import request, send_file, render_template
-
-from PIL import Image, ImageDraw, ImageOps
-from io import BytesIO
+from flask import request, render_template
 
 from keys import consumer_key, consumer_secret
 from keys import access_token, access_token_secret

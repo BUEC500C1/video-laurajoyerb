@@ -16,19 +16,16 @@ from io import BytesIO
 from keys import consumer_key, consumer_secret
 from keys import access_token, access_token_secret
 
-
-id = 0  # unique identifier for each process
-q = queue.Queue(maxsize=50)  # global queue for calling processes
-processes = {}  # global dict for tracking completion status of requests
-max_threads = 4 # number of worker threads to be created (based on # of cores available)
+# imports global variables
+import globals
 
 def send_completed_video(ident):
     # waits for video to be completed
-    while processes[ident]["status"] != "completed":
+    while globals.processes[ident]["status"] != "completed":
         pass
     
     # returns video file to original process request
-    return send_file(str(ident) + processes[ident]["user_name"] + "_twitter_video.mp4")
+    return send_file(str(ident) + globals.processes[ident]["user_name"] + "_twitter_video.mp4")
 
 def format_tweet_text(text):
     # if full text is longer than 25 characters, add a new line so it wraps
@@ -109,11 +106,11 @@ def get_tweets():
     api = tw.API(auth)
 
     while True:
-        video_request = q.get()
+        video_request = globals.q.get()
         ident = video_request["id"]
         user_name = video_request["user_name"]
 
-        processes[str(ident)]["status"] = "processing"
+        globals.processes[str(ident)]["status"] = "processing"
 
         try:
             allTweets = api.user_timeline(screen_name=user_name,
@@ -130,8 +127,8 @@ def get_tweets():
         os.system(
             "ffmpeg -r 1/3 -f image2 -s 174x300 -i " + str(ident) + user_name + "_tweet%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p " + str(ident) + user_name + "_twitter_video.mp4")
 
-        processes[str(ident)]["status"] = "completed"
-        q.task_done()
+        globals.processes[str(ident)]["status"] = "completed"
+        globals.q.task_done()
 
 # removes all previous tweets, images, and videos
 def clean_all():
@@ -141,76 +138,8 @@ def clean_all():
 
 # cleans all old images out (videos stay)
 def clean_old():
-    for call in processes.values():
+    for call in globals.processes.values():
         if call["status"] == "completed":
             for file in os.listdir('.'):
                 if file.startswith(str(call["id"]) + call["user_name"]) & file.endswith('.png'):
                     os.remove(file)
-
-app = flask.Flask(__name__)
-app.config["DEBUG"] = True
-
-
-@app.route('/', methods=['GET'])
-def home():
-    return "<h1>Twitter Video Project</h1><p>by Laura Joy Erb</p><p>for EC500: Building Software</p>"
-
-
-@app.route('/progress', methods=['GET'])
-def progress():
-    return render_template('progress.html', calls=processes)
-
-@app.route('/tweets/', methods=['GET'])
-def twitter_username():
-    # used to periodically clean out unnecessary files
-    # cleaning will increase in frequency as calls become more frequent
-    clean_old()
-
-    global id
-
-    # default user name if none provided
-    name = "NatGeo"
-
-    if 'username' in request.args:
-        name = request.args['username']
- 
-    call = {
-        "user_name": name,
-        "id": id,
-        "status" : "queued"
-    }
-    ident = str(id)
-    id += 1
-
-    # adds to dict of all process requests
-    processes[ident] = call
-
-    # adds to worker queue to be completed
-    q.put(call)
-
-    q.join()
-
-    return send_completed_video(ident)
-
-
-if __name__ == '__main__':
-    # resets
-    id = 0
-    clean_all()
-    processes.clear()
-
-    q.join()
-
-    # creates and starts threads
-    threads = []
-
-    for i in range(max_threads):
-        worker = threading.Thread(target=get_tweets)
-        worker.setDaemon(True)
-        threads.append(worker)
-    
-    for t in threads:
-        t.start()
-
-    # begins app
-    app.run()

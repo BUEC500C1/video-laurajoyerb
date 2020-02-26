@@ -5,18 +5,13 @@ import flask
 
 from flask import request, render_template
 
-from keys import consumer_key, consumer_secret
-from keys import access_token, access_token_secret
-
 # imports global variables
 import globals
 
 # imports functions from video file
 from video import send_completed_video
-from video import format_tweet_text, dated_tweets, add_media, no_tweets_error
-from video import get_tweet_images, get_tweets
+from video import get_tweets
 from video import clean_all, clean_old
-
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True

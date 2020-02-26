@@ -3,6 +3,7 @@ import time, datetime
 import math
 import requests
 import flask
+import shutil
 
 import os
 import tweepy as tw
@@ -12,8 +13,9 @@ from flask import send_file
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
-from keys import consumer_key, consumer_secret
-from keys import access_token, access_token_secret
+shutil.copy('keys', 'keys.py')
+
+from keys import *
 
 # imports global variables
 import globals

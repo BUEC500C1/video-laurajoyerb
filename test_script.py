@@ -9,17 +9,19 @@ import time
 
 import globals
 
-def test_processes_status():
-    # setup
+def add_call(name="NatGeo", ident=0, status = "queued"):
     globals.init()
 
     call = {
-        "user_name": "NatGeo",
-        "id": 0,
-        "status": "queued"
+        "user_name" : name,
+        "id" : ident,
+        "status" : status
     }
     globals.q.put(call)
     globals.processes["0"] = call
+
+def test_processes_status():
+    add_call()
 
     # calls get_tweets function
     # must be done in a thread because the function runs in an infinite loop
@@ -80,16 +82,7 @@ def test_clean_specific_none():
         os.system("touch 0NatGeo" + str(i) + ".png")
         os.system("touch NatGeo" + str(i) + ".mp4")
 
-    # setup
-    globals.init()
-
-    call = {
-        "user_name": "NatGeo",
-        "id": 0,
-        "status": "queued"
-    }
-    globals.q.put(call)
-    globals.processes["0"] = call
+    add_call()
 
     # no processes are "completed" so no files should be deleted
     clean_old()
@@ -111,16 +104,7 @@ def test_clean_specific():
         os.system("touch 0NatGeo" + str(i) + ".png")
         os.system("touch 0NatGeo" + str(i) + ".mp4")
 
-    # setup
-    globals.init()
-
-    call = {
-        "user_name": "NatGeo",
-        "id": 0,
-        "status": "completed"
-    }
-    globals.q.put(call)
-    globals.processes["0"] = call
+    add_call(status="completed")
 
     # process is "completed" so png files should be deleted
     clean_old()

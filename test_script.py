@@ -4,25 +4,32 @@ from video import get_tweet_images, get_tweets
 from video import clean_all, clean_old
 
 import os
+import threading
+import time
 
 import globals
 
-# def test1():
-#     # setup
-#     globals.init()
+def test_processes_status():
+    # setup
+    globals.init()
 
-#     call = {
-#         "user_name": "NatGeo",
-#         "id": 0,
-#         "status": "queued"
-#     }
-#     globals.q.put(call)
-#     globals.processes["0"] = call
+    call = {
+        "user_name": "NatGeo",
+        "id": 0,
+        "status": "queued"
+    }
+    globals.q.put(call)
+    globals.processes["0"] = call
 
-#     # get_tweets()
+    # calls get_tweets function
+    # must be done in a thread because the function runs in an infinite loop
+    worker = threading.Thread(target=get_tweets)
+    worker.setDaemon(True)
+    worker.start()
 
-#     # assert globals.processes["0"]["status"] == "completed"
-#     assert 1 == 1
+    assert globals.processes["0"]["status"] == "processing"
+    time.sleep(3)
+    assert globals.processes["0"]["status"] == "completed"
 
 def test_error_image():
     no_tweets_error("LauraJoy", "314")

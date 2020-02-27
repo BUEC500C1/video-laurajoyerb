@@ -66,3 +66,29 @@ def test_clean_all():
         "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.txt")
     os.remove(
         "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf")
+
+def test_clean_specific_none():
+    # creates a bunch of png and mp4 files to be cleaned
+    for i in range(10):
+        os.system("touch 0NatGeo" + str(i) + ".png")
+        os.system("touch NatGeo" + str(i) + ".mp4")
+
+    # setup
+    globals.init()
+
+    call = {
+        "user_name": "NatGeo",
+        "id": 0,
+        "status": "queued"
+    }
+    globals.q.put(call)
+    globals.processes["0"] = call
+
+    # no processes are "completed" so no files should be deleted
+    clean_old()
+
+    assert os.path.isfile(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo0.png")
+    assert os.path.isfile(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/NatGeo0.mp4")
+

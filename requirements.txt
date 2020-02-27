@@ -19,10 +19,10 @@
 # cryptography==2.6.1
 # docutils==0.15.2
 # enum34==1.1.6
-# ffmpeg==1.4
-# Flask==1.1.1
-# Flask-Login==0.4.1
-# Flask-WTF==0.14.2
+ffmpeg==1.4
+Flask==1.1.1
+Flask-Login==0.4.1
+Flask-WTF==0.14.2
 # funcsigs==1.0.2
 # future==0.17.1
 # futures==3.3.0

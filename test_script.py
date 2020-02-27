@@ -35,4 +35,34 @@ def test_error_image():
 
     assert file_exists == True
 
-    
+def test_clean_all():
+    # creates a bunch of png and mp4 files to be cleaned
+    for i in range(10):
+        os.system("touch myfile" + str(i) + ".png")
+        os.system("touch myfile" + str(i) + ".mp4")
+
+    # creates other miscellaneous files that should not be deleted
+    os.system("touch pngfile.txt")
+    os.system("touch pngfile.pdf")
+
+    clean_all()
+
+    any_exist = False;
+    for j in range(10):
+        if os.path.isfile(
+            "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/myfile" + str(j) + ".png"):
+                any_exist = True
+
+    missing_txt = os.path.isfile(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.txt") == False
+    missing_pdf = os.path.isfile(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf") == False
+
+    assert any_exist == False
+    assert missing_txt == False
+    assert missing_pdf == False
+
+    os.remove(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.txt")
+    os.remove(
+        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf")

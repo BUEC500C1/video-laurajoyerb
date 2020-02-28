@@ -1,10 +1,11 @@
-from video import format_tweet_text, no_tweets_error
+from video import format_tweet_text, dated_tweets, no_tweets_error
 from video import get_tweet_images, get_tweets
 from video import clean_all, clean_old
 
 import os
 import threading
 import time
+import pickle
 
 import globals
 
@@ -33,6 +34,19 @@ def test_processes_status():
     assert globals.processes["0"]["status"] == "processing"
     time.sleep(3)
     assert globals.processes["0"]["status"] == "completed"
+
+
+def test_image_creation():
+    default_tweets = open("allTweets.obj", "rb")
+    raw_tweets = default_tweets.read()
+    allTweets = pickle.loads(raw_tweets)
+    day_tweets = dated_tweets(allTweets)
+
+    get_tweet_images(day_tweets, "LauraJoy", 314)
+
+    for i in range(0, len(day_tweets)):
+        assert os.path.isfile("314LauraJoy_tweet" + str(i) + ".png")
+        os.remove("314LauraJoy_tweet" + str(i) + ".png")
 
 
 def test_format_long_text():

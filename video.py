@@ -1,9 +1,15 @@
-import threading, queue
+import threading
 import time, datetime
 import math
 import requests
 import flask
 import shutil
+import pickle
+
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 
 import os
 import tweepy as tw
@@ -144,3 +150,16 @@ def clean_old():
             for file in os.listdir('.'):
                 if file.startswith(str(call["id"]) + call["user_name"]) & file.endswith('.png'):
                     os.remove(file)
+
+
+globals.init()
+
+call = {
+    "user_name": "NatGeo",
+    "id": 0,
+    "status": "queued"
+}
+globals.q.put(call)
+globals.processes["0"] = call
+
+get_tweets()

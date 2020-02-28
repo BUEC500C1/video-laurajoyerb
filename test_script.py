@@ -37,10 +37,10 @@ def test_error_image():
     no_tweets_error("LauraJoy", "314")
 
     file_exists = os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/314LauraJoy_tweet0.png")
+        "314LauraJoy_tweet0.png")
 
     if file_exists:
-        os.remove("/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/314LauraJoy_tweet0.png")
+        os.remove("314LauraJoy_tweet0.png")
 
     assert file_exists == True
 
@@ -59,22 +59,22 @@ def test_clean_all():
     any_exist = False;
     for j in range(10):
         if os.path.isfile(
-            "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/myfile" + str(j) + ".png"):
+            "myfile" + str(j) + ".png"):
                 any_exist = True
 
     missing_txt = os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.txt") == False
+        "pngfile.txt") == False
     missing_pdf = os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf") == False
+        "pngfile.pdf") == False
 
     assert any_exist == False
     assert missing_txt == False
     assert missing_pdf == False
 
     os.remove(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.txt")
+        "pngfile.txt")
     os.remove(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf")
+        "pngfile.pdf")
 
 def test_clean_specific_none():
     # creates a bunch of png and mp4 files to be cleaned
@@ -88,15 +88,15 @@ def test_clean_specific_none():
     clean_old()
 
     assert os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo0.png") == True
+        "0NatGeo0.png") == True
     assert os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/NatGeo0.mp4") == True
+        "NatGeo0.mp4") == True
 
     for i in range(10):
         os.remove(
-            "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo" + str(i) + ".png")
+            "0NatGeo" + str(i) + ".png")
         os.remove(
-            "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/NatGeo" + str(i) + ".mp4")
+            "NatGeo" + str(i) + ".mp4")
 
 def test_clean_specific():
     # creates a bunch of png and mp4 files to be cleaned
@@ -111,10 +111,10 @@ def test_clean_specific():
 
     # clean_old deletes tweet images, but not the tweet video
     assert os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo0.png") == False
+        "0NatGeo0.png") == False
     assert os.path.isfile(
-        "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo0.mp4") == True
+        "0NatGeo0.mp4") == True
 
     for i in range(10):
         os.remove(
-            "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/0NatGeo" + str(i) + ".mp4")
+            "0NatGeo" + str(i) + ".mp4")

@@ -1,4 +1,4 @@
-from video import format_tweet_text, dated_tweets, add_media, no_tweets_error
+from video import format_tweet_text, no_tweets_error
 from video import get_tweet_images, get_tweets
 from video import clean_all, clean_old
 
@@ -36,7 +36,7 @@ def test_processes_status():
 
 
 def test_format_long_text():
-    txt = "123456789.........20...25...30" # 30 chars long
+    txt = "123456789.........20...25...30"  # 30 chars long
     short, lines = format_tweet_text(txt)
 
     assert lines == 2
@@ -64,6 +64,7 @@ def test_format_50_text():
     assert short[25] == "\n"
     assert short[26] == "1"
     assert len(short) == 51
+
 
 def test_error_image():
     no_tweets_error("LauraJoy", "314")

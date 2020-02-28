@@ -68,9 +68,9 @@ def test_clean_all():
     missing_txt = not os.path.isfile("pngfile.txt")
     missing_pdf = not os.path.isfile("pngfile.pdf")
 
-    assert any_exist == False
-    assert missing_txt == False
-    assert missing_pdf == False
+    assert not any_exist
+    assert not missing_txt
+    assert not missing_pdf
 
     os.remove("pngfile.txt")
     os.remove("pngfile.pdf")
@@ -87,8 +87,8 @@ def test_clean_specific_none():
     # no processes are "completed" so no files should be deleted
     clean_old()
 
-    assert os.path.isfile("0NatGeo0.png") == True
-    assert os.path.isfile("NatGeo0.mp4") == True
+    assert os.path.isfile("0NatGeo0.png")
+    assert os.path.isfile("NatGeo0.mp4")
 
     for i in range(10):
         os.remove("0NatGeo" + str(i) + ".png")
@@ -107,8 +107,8 @@ def test_clean_specific():
     clean_old()
 
     # clean_old deletes tweet images, but not the tweet video
-    assert os.path.isfile("0NatGeo0.png") == False
-    assert os.path.isfile("0NatGeo0.mp4") == True
+    assert not os.path.isfile("0NatGeo0.png")
+    assert os.path.isfile("0NatGeo0.mp4")
 
     for i in range(10):
         os.remove("0NatGeo" + str(i) + ".mp4")

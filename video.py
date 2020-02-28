@@ -36,7 +36,6 @@ def send_completed_video(ident):
 def format_tweet_text(text):
     # if full text is longer than 25 characters, add a new line so it wraps
     if len(text) > 25:
-        i = 0
         res = '\n'.join(text[i:i + 25] for i in range(0, len(text), 25))
         new_lines = math.floor(len(text) / 25)
         return res, new_lines
@@ -108,7 +107,7 @@ def get_tweet_images(tweets, user_name, ident):
 
 
 def get_tweets():
-    if no_keys == False:
+    if not no_keys:
         # OAuth process, using the keys and tokens
         auth = tw.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
@@ -123,7 +122,7 @@ def get_tweets():
 
         globals.processes[str(ident)]["status"] = "processing"
 
-        if no_keys == True:
+        if no_keys:
             default_tweets = open("allTweets.obj", "rb")
             raw_tweets = default_tweets.read()
             allTweets = pickle.loads(raw_tweets)
@@ -132,14 +131,13 @@ def get_tweets():
             get_tweet_images(day_tweets, user_name, ident)
         else:
             try:
-                allTweets = api.user_timeline(screen_name=user_name,
-                                            tweet_mode="extended", count=100)
+                allTweets = api.user_timeline(screen_name=user_name, tweet_mode="extended", count=100)
             except:
                 no_tweets_error(user_name, ident)
             else:
                 day_tweets = dated_tweets(allTweets)
 
-                # creates all images and stores them as png files in the directory
+                # creates and stores images as png files in the directory
                 get_tweet_images(day_tweets, user_name, ident)
 
         # creates video using ffmpeg

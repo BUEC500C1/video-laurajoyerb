@@ -1,5 +1,6 @@
 import queue
 
+
 def init():
     global id
     global q

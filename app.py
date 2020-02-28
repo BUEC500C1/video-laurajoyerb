@@ -1,6 +1,4 @@
 import threading
-import queue
-import requests
 import flask
 
 from flask import request, render_template
@@ -19,7 +17,11 @@ app.config["DEBUG"] = True
 
 @app.route('/', methods=['GET'])
 def home():
-    return "<h1>Twitter Video Project</h1><p>by Laura Joy Erb</p><p>for EC500: Building Software</p>"
+    return """
+        <h1>Twitter Video Project</h1>
+        <p>by Laura Joy Erb</p>
+        <p>for EC500: Building Software</p>
+    """
 
 
 @app.route('/progress', methods=['GET'])

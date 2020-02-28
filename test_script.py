@@ -9,16 +9,18 @@ import time
 
 import globals
 
-def add_call(name="NatGeo", ident=0, status = "queued"):
+
+def add_call(name="NatGeo", ident=0, status="queued"):
     globals.init()
 
     call = {
-        "user_name" : name,
-        "id" : ident,
-        "status" : status
+        "user_name": name,
+        "id": ident,
+        "status": status
     }
     globals.q.put(call)
     globals.processes["0"] = call
+
 
 def test_processes_status():
     add_call()
@@ -33,6 +35,7 @@ def test_processes_status():
     time.sleep(3)
     assert globals.processes["0"]["status"] == "completed"
 
+
 def test_error_image():
     no_tweets_error("LauraJoy", "314")
 
@@ -42,7 +45,8 @@ def test_error_image():
     if file_exists:
         os.remove("314LauraJoy_tweet0.png")
 
-    assert file_exists == True
+    assert file_exists
+
 
 def test_clean_all():
     # creates a bunch of png and mp4 files to be cleaned
@@ -56,25 +60,21 @@ def test_clean_all():
 
     clean_all()
 
-    any_exist = False;
+    any_exist = False
     for j in range(10):
-        if os.path.isfile(
-            "myfile" + str(j) + ".png"):
-                any_exist = True
+        if os.path.isfile("myfile" + str(j) + ".png"):
+            any_exist = True
 
-    missing_txt = os.path.isfile(
-        "pngfile.txt") == False
-    missing_pdf = os.path.isfile(
-        "pngfile.pdf") == False
+    missing_txt = not os.path.isfile("pngfile.txt")
+    missing_pdf = not os.path.isfile("pngfile.pdf")
 
     assert any_exist == False
     assert missing_txt == False
     assert missing_pdf == False
 
-    os.remove(
-        "pngfile.txt")
-    os.remove(
-        "pngfile.pdf")
+    os.remove("pngfile.txt")
+    os.remove("pngfile.pdf")
+
 
 def test_clean_specific_none():
     # creates a bunch of png and mp4 files to be cleaned
@@ -87,16 +87,13 @@ def test_clean_specific_none():
     # no processes are "completed" so no files should be deleted
     clean_old()
 
-    assert os.path.isfile(
-        "0NatGeo0.png") == True
-    assert os.path.isfile(
-        "NatGeo0.mp4") == True
+    assert os.path.isfile("0NatGeo0.png") == True
+    assert os.path.isfile("NatGeo0.mp4") == True
 
     for i in range(10):
-        os.remove(
-            "0NatGeo" + str(i) + ".png")
-        os.remove(
-            "NatGeo" + str(i) + ".mp4")
+        os.remove("0NatGeo" + str(i) + ".png")
+        os.remove("NatGeo" + str(i) + ".mp4")
+
 
 def test_clean_specific():
     # creates a bunch of png and mp4 files to be cleaned
@@ -110,11 +107,8 @@ def test_clean_specific():
     clean_old()
 
     # clean_old deletes tweet images, but not the tweet video
-    assert os.path.isfile(
-        "0NatGeo0.png") == False
-    assert os.path.isfile(
-        "0NatGeo0.mp4") == True
+    assert os.path.isfile("0NatGeo0.png") == False
+    assert os.path.isfile("0NatGeo0.mp4") == True
 
     for i in range(10):
-        os.remove(
-            "0NatGeo" + str(i) + ".mp4")
+        os.remove("0NatGeo" + str(i) + ".mp4")

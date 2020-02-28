@@ -1,20 +1,19 @@
-import threading
-import time, datetime
+import datetime
 import math
 import requests
-import flask
 import shutil
 import pickle
-
-import queue
 
 import os
 import tweepy as tw
 
 from flask import send_file
 
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw
 from io import BytesIO
+
+# imports global variables
+import globals
 
 no_keys = False
 
@@ -25,16 +24,14 @@ except:
     no_keys = True
 
 
-# imports global variables
-import globals
-
 def send_completed_video(ident):
     # waits for video to be completed
     while globals.processes[ident]["status"] != "completed":
         pass
-    
+
     # returns video file to original process request
     return send_file(str(ident) + globals.processes[ident]["user_name"] + "_twitter_video.mp4")
+
 
 def format_tweet_text(text):
     # if full text is longer than 25 characters, add a new line so it wraps
@@ -46,6 +43,7 @@ def format_tweet_text(text):
     else:
         return text, 1
 
+
 def dated_tweets(tweets):
     dated = []
     for tweet in tweets:
@@ -55,6 +53,7 @@ def dated_tweets(tweets):
 
     return dated
 
+
 # pastes tweet media onto tweet image
 def add_media(tweet, image, img_height):
     img_url = tweet.entities['media'][0]['media_url_https']
@@ -62,6 +61,7 @@ def add_media(tweet, image, img_height):
     media_img = Image.open(BytesIO(response.content))
     media_img.thumbnail((180, 180), Image.ANTIALIAS)
     image.paste(media_img, (10, img_height + 15))
+
 
 def no_tweets_error(user_name, ident):
     error_image = Image.new('RGB', (203, 350), (255, 255, 255))
@@ -73,6 +73,7 @@ def no_tweets_error(user_name, ident):
     # saves the image
     image_name = str(ident) + user_name + "_tweet0.png"
     error_image.save(image_name)
+
 
 def get_tweet_images(tweets, user_name, ident):
     if len(tweets) == 0:
@@ -104,6 +105,7 @@ def get_tweet_images(tweets, user_name, ident):
         image_name = str(ident) + user_name + "_tweet" + str(index) + ".png"
         text_img.save(image_name)
         index += 1
+
 
 def get_tweets():
     if no_keys == False:
@@ -147,11 +149,13 @@ def get_tweets():
         globals.processes[str(ident)]["status"] = "completed"
         globals.q.task_done()
 
+
 # removes all previous tweets, images, and videos
 def clean_all():
     for file in os.listdir('.'):
         if file.endswith('.png') or file.endswith('.mp4'):
             os.remove(file)
+
 
 # cleans all old images out (videos stay)
 def clean_old():

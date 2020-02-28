@@ -1,9 +1,4 @@
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-# import queue
+import queue
 
 def init():
     global id

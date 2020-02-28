@@ -6,10 +6,7 @@ import flask
 import shutil
 import pickle
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 
 import os
 import tweepy as tw
@@ -19,9 +16,14 @@ from flask import send_file
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 
-shutil.copy('keys', 'keys.py')
+no_keys = False
 
-from keys import *
+try:
+    shutil.copy('keys', 'keys.py')
+    from keys import *
+except:
+    no_keys = True
+
 
 # imports global variables
 import globals
@@ -104,13 +106,13 @@ def get_tweet_images(tweets, user_name, ident):
         index += 1
 
 def get_tweets():
+    if no_keys == False:
+        # OAuth process, using the keys and tokens
+        auth = tw.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_token_secret)
 
-    # OAuth process, using the keys and tokens
-    auth = tw.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-
-    # Creation of the actual interface, using authentication
-    api = tw.API(auth)
+        # Creation of the actual interface, using authentication
+        api = tw.API(auth)
 
     while True:
         video_request = globals.q.get()
@@ -119,16 +121,24 @@ def get_tweets():
 
         globals.processes[str(ident)]["status"] = "processing"
 
-        try:
-            allTweets = api.user_timeline(screen_name=user_name,
-                                        tweet_mode="extended", count=100)
-        except:
-            no_tweets_error(user_name, ident)
-        else:
+        if no_keys == True:
+            default_tweets = open("allTweets.obj", "rb")
+            raw_tweets = default_tweets.read()
+            allTweets = pickle.loads(raw_tweets)
             day_tweets = dated_tweets(allTweets)
-
             # creates all images and stores them as png files in the directory
             get_tweet_images(day_tweets, user_name, ident)
+        else:
+            try:
+                allTweets = api.user_timeline(screen_name=user_name,
+                                            tweet_mode="extended", count=100)
+            except:
+                no_tweets_error(user_name, ident)
+            else:
+                day_tweets = dated_tweets(allTweets)
+
+                # creates all images and stores them as png files in the directory
+                get_tweet_images(day_tweets, user_name, ident)
 
         # creates video using ffmpeg
         os.system(
@@ -152,14 +162,14 @@ def clean_old():
                     os.remove(file)
 
 
-globals.init()
+# globals.init()
 
-call = {
-    "user_name": "NatGeo",
-    "id": 0,
-    "status": "queued"
-}
-globals.q.put(call)
-globals.processes["0"] = call
+# call = {
+#     "user_name": "NatGeo",
+#     "id": 0,
+#     "status": "queued"
+# }
+# globals.q.put(call)
+# globals.processes["0"] = call
 
-get_tweets()
+# get_tweets()

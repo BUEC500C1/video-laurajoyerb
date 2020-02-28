@@ -115,6 +115,7 @@ def get_tweets():
         # Creation of the actual interface, using authentication
         api = tw.API(auth)
 
+    # infinite while loop for threads
     while True:
         video_request = globals.q.get()
         ident = video_request["id"]

@@ -1,4 +1,3 @@
-from video import send_completed_video
 from video import format_tweet_text, dated_tweets, add_media, no_tweets_error
 from video import get_tweet_images, get_tweets
 from video import clean_all, clean_old
@@ -35,6 +34,36 @@ def test_processes_status():
     time.sleep(3)
     assert globals.processes["0"]["status"] == "completed"
 
+
+def test_format_long_text():
+    txt = "123456789.........20...25...30" # 30 chars long
+    short, lines = format_tweet_text(txt)
+
+    assert lines == 2
+    assert short[24] == "5"
+    assert short[25] == "\n"
+    assert short[26] == "."
+
+
+def test_format_short_text():
+    txt = "123456789.........20...25"  # 25 chars long
+    short, lines = format_tweet_text(txt)
+
+    assert lines == 1
+    assert short[24] == "5"
+    assert len(short) == 25
+
+
+def test_format_50_text():
+    # 50 chars long
+    txt = "123456789.........20...25123456789.........20...50"
+    short, lines = format_tweet_text(txt)
+
+    assert lines == 2
+    assert short[24] == "5"
+    assert short[25] == "\n"
+    assert short[26] == "1"
+    assert len(short) == 51
 
 def test_error_image():
     no_tweets_error("LauraJoy", "314")

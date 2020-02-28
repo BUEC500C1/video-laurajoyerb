@@ -37,8 +37,8 @@ def format_tweet_text(text):
     # if full text is longer than 25 characters, add a new line so it wraps
     if len(text) > 25:
         res = '\n'.join(text[i:i + 25] for i in range(0, len(text), 25))
-        new_lines = math.floor(len(text) / 25)
-        return res, new_lines
+        lines = math.ceil(len(text) / 25)
+        return res, lines
     else:
         return text, 1
 

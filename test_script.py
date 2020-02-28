@@ -10,6 +10,7 @@ import time
 import globals
 
 def add_call(name="NatGeo", ident=0, status = "queued"):
+    clean_all()
     globals.init()
 
     call = {
@@ -21,6 +22,7 @@ def add_call(name="NatGeo", ident=0, status = "queued"):
     globals.processes["0"] = call
 
 def test_processes_status():
+    clean_all()
     add_call()
 
     # calls get_tweets function
@@ -34,6 +36,7 @@ def test_processes_status():
     assert globals.processes["0"]["status"] == "completed"
 
 def test_error_image():
+    clean_all()
     no_tweets_error("LauraJoy", "314")
 
     file_exists = os.path.isfile(
@@ -45,6 +48,8 @@ def test_error_image():
     assert file_exists == True
 
 def test_clean_all():
+    clean_all()
+
     # creates a bunch of png and mp4 files to be cleaned
     for i in range(10):
         os.system("touch myfile" + str(i) + ".png")
@@ -77,6 +82,7 @@ def test_clean_all():
         "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/pngfile.pdf")
 
 def test_clean_specific_none():
+    clean_all()
     # creates a bunch of png and mp4 files to be cleaned
     for i in range(10):
         os.system("touch 0NatGeo" + str(i) + ".png")
@@ -99,6 +105,7 @@ def test_clean_specific_none():
             "/Users/laurajoyerb/Documents/MyCode/EC500/video-laurajoyerb/NatGeo" + str(i) + ".mp4")
 
 def test_clean_specific():
+    clean_all()
     # creates a bunch of png and mp4 files to be cleaned
     for i in range(10):
         os.system("touch 0NatGeo" + str(i) + ".png")

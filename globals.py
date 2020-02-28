@@ -3,6 +3,8 @@ try:
 except ImportError:
     import Queue as queue
 
+# import queue
+
 def init():
     global id
     global q

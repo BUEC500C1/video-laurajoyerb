@@ -21,7 +21,7 @@
 # et-xmlfile==1.0.1
 ffmpeg==1.4
 flake8==3.7.9
-Flask==1.1.1
+Flask==2.3.2
 geojson==2.5.0
 # idna==2.8
 # ijson==2.6.0
